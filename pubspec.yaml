@@ -1,0 +1,15 @@
+name: info.kyorohiro.dart2.smtp
+description: smtp 
+version: 0.0.1
+# homepage: https://www.example.com
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+#  path: ^1.7.0
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: any
+  meta: any
