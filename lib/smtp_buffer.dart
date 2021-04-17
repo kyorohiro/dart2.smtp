@@ -64,7 +64,7 @@ class Command {
   }
 }
 
-class CommandDivider {
+class SmtpBuffer {
   static final int MODE_COMMAND = 0;
   static final int MODE_DATA = 1;
   Stream<List<int>> stream;
@@ -75,7 +75,7 @@ class CommandDivider {
   bool calledOnError = false;
   int modeData = MODE_COMMAND;
 
-  CommandDivider(this.stream) {
+  SmtpBuffer(this.stream) {
     List<int> endData = Uint8List(5);
     stream.listen((v) {
       if (modeData == MODE_DATA) {

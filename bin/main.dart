@@ -1,40 +1,38 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
-import 'package:info.kyorohiro.dart2.smtp/commandDivider.dart';
+import 'package:info.kyorohiro.dart2.smtp/smtp_buffer.dart';
 
-main() async {
+void main() async {
   var mailServerDomain = 'tetorica.net';
   var server = await io.ServerSocket.bind('0.0.0.0', 25);
   print('binded ${server}');
 
   server.listen((socket) async {
-    var commandDivider = CommandDivider(socket);
+    var smtpBuffer = SmtpBuffer(socket);
     print('address from ${socket.address} ${socket.port}');
     print('remoteAddress from ${socket.remoteAddress} ${socket.remotePort}');
 
     //
-    //
+    // service ready message
     socket.write(Command.message220(mailServerDomain)); // 220, 421
-    //
-    //
 
     do {
-      var messageAsBytes = await commandDivider.nextCommand();
+      var messageAsBytes = await smtpBuffer.nextCommand();
       var command = Command(action: '', value: '');
       try {
         print('cmd: ${utf8.decode(messageAsBytes, allowMalformed: true)}');
-        if (commandDivider.calledOnDone || commandDivider.calledOnError) {
+        if (smtpBuffer.calledOnDone || smtpBuffer.calledOnError) {
           break;
         }
         command = Command.parse(utf8.decode(messageAsBytes, allowMalformed: true));
-      } catch (e) {
-        print('err:');
+      } catch (e, s) {
+        print('err: ${e} ${s}');
         socket.write(Command.message504());
         continue;
       }
+
       var targetDomain = '';
       var fromAddress = '';
       List<String> toAddress = [];
@@ -74,16 +72,17 @@ main() async {
           break;
         case 'data':
           // I: 354 -> data -> S: 250
-          //                     F: 552, 554, 451, 452
+          //                   F: 552, 554, 451, 452
           // F: 451, 554
           // E: 500, 501, 503, 421
           socket.write(Command.message354());
           var buffers = <List<int>>[];
-          await for (var v in commandDivider.nextData()) {
+          await for (var v in smtpBuffer.nextData()) {
             buffers.add(v);
             //
-            if (commandDivider.modeData == false) {
+            if (smtpBuffer.modeData == false) {
               // end
+              break;
             }
           }
           print(utf8.decode(buffers2Buffer(buffers)));

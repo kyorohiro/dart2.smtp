@@ -1,6 +1,6 @@
 library bencode.test;
 
-import 'package:info.kyorohiro.dart2.smtp/commandDivider.dart';
+import 'package:info.kyorohiro.dart2.smtp/smtp_buffer.dart';
 import 'dart:async' show StreamController, Completer;
 import 'package:test/test.dart' as unit;
 //import 'dart:typed_data' as ty;
@@ -10,7 +10,7 @@ void main() {
   unit.group('divider', () {
     unit.test('basic 01', () async {
       var c = StreamController<List<int>>();
-      var cm = CommandDivider(c.stream);
+      var cm = SmtpBuffer(c.stream);
       c.add(utf8.encode('Helo xx x'));
       c.add(utf8.encode('\r\n'));
       c.add(utf8.encode('Helo xx y'));
@@ -23,7 +23,7 @@ void main() {
     });
     unit.test('basic 01', () async {
       var c = StreamController<List<int>>();
-      var cm = CommandDivider(c.stream);
+      var cm = SmtpBuffer(c.stream);
       c.add(utf8.encode('Helo xx x'));
       c.add(utf8.encode('\r\n'));
       c.add(utf8.encode('Helo xx y'));
@@ -37,7 +37,7 @@ void main() {
 
     unit.test('basic 01', () async {
       var c = StreamController<List<int>>();
-      var cm = CommandDivider(c.stream);
+      var cm = SmtpBuffer(c.stream);
       c.add(utf8.encode('Helo xx x'));
       var comp = Completer<List<int>>();
 
