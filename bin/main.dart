@@ -6,36 +6,37 @@ import 'dart:typed_data' show Uint8List;
 import 'package:info.kyorohiro.dart2.smtp/commandDivider.dart';
 
 main() async {
-  var mailServerDomain = "tetorica.net";
-  var domain = "tetorica.net";
-  var server = await io.ServerSocket.bind("0.0.0.0", 25);
-  print("binded ${server}");
+  var mailServerDomain = 'tetorica.net';
+  var server = await io.ServerSocket.bind('0.0.0.0', 25);
+  print('binded ${server}');
 
   server.listen((socket) async {
     var commandDivider = CommandDivider(socket);
-    print("connect");
-    //io.SecureSocket.secure(socket);
-    // Connection
+    print('address from ${socket.address} ${socket.port}');
+    print('remoteAddress from ${socket.remoteAddress} ${socket.remotePort}');
+
+    //
+    //
     socket.write(Command.message220(mailServerDomain)); // 220, 421
     //
     //
 
     do {
       var messageAsBytes = await commandDivider.nextCommand();
-      var command = Command(action: "", value: "");
+      var command = Command(action: '', value: '');
       try {
-        print("cmd: ${utf8.decode(messageAsBytes, allowMalformed: true)}");
+        print('cmd: ${utf8.decode(messageAsBytes, allowMalformed: true)}');
         if (commandDivider.calledOnDone || commandDivider.calledOnError) {
           break;
         }
         command = Command.parse(utf8.decode(messageAsBytes, allowMalformed: true));
       } catch (e) {
-        print("err:");
+        print('err:');
         socket.write(Command.message504());
         continue;
       }
-      var targetDomain = "";
-      var fromAddress = "";
+      var targetDomain = '';
+      var fromAddress = '';
       List<String> toAddress = [];
       switch (command.action) {
         case 'helo':
@@ -66,8 +67,8 @@ main() async {
         case 'rset':
           // clear all buffer
           //
-          targetDomain = "";
-          fromAddress = "";
+          targetDomain = '';
+          fromAddress = '';
           toAddress.clear();
           socket.write(Command.message250()); // S: 250 E: 500, 501, 504, 421
           break;
@@ -77,8 +78,8 @@ main() async {
           // F: 451, 554
           // E: 500, 501, 503, 421
           socket.write(Command.message354());
-          List<List<int>> buffers = [];
-          await for (var v in commandDivider.data()) {
+          var buffers = <List<int>>[];
+          await for (var v in commandDivider.nextData()) {
             buffers.add(v);
             //
             if (commandDivider.modeData == false) {
@@ -91,7 +92,7 @@ main() async {
         default:
           socket.write(Command.message504());
       }
-      //if(message.startsWith("HELLO"))
+      //if(message.startsWith('HELLO'))
     } while (true);
     await socket.flush();
     socket.close();
