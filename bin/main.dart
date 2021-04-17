@@ -22,7 +22,18 @@ main() async {
 
     do {
       var messageAsBytes = await commandDivider.nextCommand();
-      var command = Command.parse(utf8.decode(messageAsBytes, allowMalformed: true));
+      var command = Command(action: "", value: "");
+      try {
+        print("cmd: ${utf8.decode(messageAsBytes, allowMalformed: true)}");
+        if (commandDivider.calledOnDone || commandDivider.calledOnError) {
+          break;
+        }
+        command = Command.parse(utf8.decode(messageAsBytes, allowMalformed: true));
+      } catch (e) {
+        print("err:");
+        socket.write(Command.message504());
+        continue;
+      }
       var targetDomain = "";
       var fromAddress = "";
       List<String> toAddress = [];
@@ -77,6 +88,8 @@ main() async {
           print(utf8.decode(buffers2Buffer(buffers)));
           socket.write(Command.message250());
           break;
+        default:
+          socket.write(Command.message504());
       }
       //if(message.startsWith("HELLO"))
     } while (true);

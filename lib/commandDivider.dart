@@ -30,12 +30,14 @@ class Command {
   static final int CODE_250_REQUESTED_MAIL_ACTION_OKAY = 250; // mail action okay
   static final int CODE_354_START_INPUT = 354; // 354 Start mail input; end with <CRLF>.<CRLF>
   static final int CODE_421_SERVICE_NOT_AVAILABLE = 421; //421 <domain> Service not available
+  static final int CODE_504_COMMAND_PARAMETER_NOT_IMPLEMENTED = 504; // Command parameter not implemented
+
   static String message220(String domain) => "220 ${domain} Service ready\r\n";
   static String message221(String domain) => "221 ${domain}\r\n";
   static String message250([String message = "OK"]) => "250 ${message}\r\n";
   static String message354([String message = "Go ahead"]) => "354 ${message}\r\n";
-
   static String message421(String domain) => "421 ${domain} Service ready\r\n";
+  static String message504() => "504 command  parameter not support\r\n";
   //
   static final commandRefExp = RegExp("(HELO|EHLO|MAIL|RCPT|DATA|RSET|NOOP|QUIT|VRFY|[0-9]+)[ ]?(.*)\r\n", caseSensitive: false);
   static final fromRefExp = RegExp("[ ]*from[ ]*:[ ]*(.+)", caseSensitive: false);
